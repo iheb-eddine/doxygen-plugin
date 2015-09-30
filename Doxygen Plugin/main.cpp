@@ -25,7 +25,7 @@ int main(int argc, const char * argv[])
 
     std::vector<FunctionInfo_Struct> functionList;
 
-    GetExtractFunctionsInfo("/Users/ihebeddine/projects/doxygen/SamllExample/html/globals_func.html", functionList);
+    GetExtractFunctionsInfo("/home/ihebeddine/Desktop/simple_progs/doxygen/SamllExample/html/globals_func.html", functionList);
 
     
     return 0;
@@ -133,7 +133,7 @@ bool ExtractFunctionInfo(const char * xFunctionName, const char * xFunctionLink,
     if (! xFunctionName || ! *xFunctionName || ! xFunctionLink || ! *xFunctionLink)
         return false;
 
-    char * functionId = strstr(xFunctionLink, "#");
+    char * functionId = strstr((char *)xFunctionLink, "#");
 
     if (! strstr(xFunctionName, "(") || strstr(xFunctionName, "(") - xFunctionName >= sizeof(functionInfo.FunctionName) || ! functionId || ! functionId[1] || functionId == xFunctionLink)
         return false;
