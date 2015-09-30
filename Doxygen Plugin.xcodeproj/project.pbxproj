@@ -8,6 +8,10 @@
 
 /* Begin PBXBuildFile section */
 		331036401BBB29380024A7FD /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 3310363F1BBB29380024A7FD /* main.cpp */; };
+		33104D331BBB2E160024A7FD /* tinystr.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33104D2D1BBB2E160024A7FD /* tinystr.cpp */; };
+		33104D341BBB2E160024A7FD /* tinyxml.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33104D2F1BBB2E160024A7FD /* tinyxml.cpp */; };
+		33104D351BBB2E160024A7FD /* tinyxmlerror.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33104D311BBB2E160024A7FD /* tinyxmlerror.cpp */; };
+		33104D361BBB2E160024A7FD /* tinyxmlparser.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 33104D321BBB2E160024A7FD /* tinyxmlparser.cpp */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,6 +29,13 @@
 /* Begin PBXFileReference section */
 		3310363C1BBB29380024A7FD /* Doxygen Plugin */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "Doxygen Plugin"; sourceTree = BUILT_PRODUCTS_DIR; };
 		3310363F1BBB29380024A7FD /* main.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+		33104D2D1BBB2E160024A7FD /* tinystr.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinystr.cpp; sourceTree = "<group>"; };
+		33104D2E1BBB2E160024A7FD /* tinystr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tinystr.h; sourceTree = "<group>"; };
+		33104D2F1BBB2E160024A7FD /* tinyxml.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxml.cpp; sourceTree = "<group>"; };
+		33104D301BBB2E160024A7FD /* tinyxml.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = tinyxml.h; sourceTree = "<group>"; };
+		33104D311BBB2E160024A7FD /* tinyxmlerror.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxmlerror.cpp; sourceTree = "<group>"; };
+		33104D321BBB2E160024A7FD /* tinyxmlparser.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = tinyxmlparser.cpp; sourceTree = "<group>"; };
+		33104D371BBB30DA0024A7FD /* utils.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = utils.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -57,9 +68,24 @@
 		3310363E1BBB29380024A7FD /* Doxygen Plugin */ = {
 			isa = PBXGroup;
 			children = (
+				33104D2C1BBB2E160024A7FD /* TinyXml */,
 				3310363F1BBB29380024A7FD /* main.cpp */,
+				33104D371BBB30DA0024A7FD /* utils.h */,
 			);
 			path = "Doxygen Plugin";
+			sourceTree = "<group>";
+		};
+		33104D2C1BBB2E160024A7FD /* TinyXml */ = {
+			isa = PBXGroup;
+			children = (
+				33104D2D1BBB2E160024A7FD /* tinystr.cpp */,
+				33104D2E1BBB2E160024A7FD /* tinystr.h */,
+				33104D2F1BBB2E160024A7FD /* tinyxml.cpp */,
+				33104D301BBB2E160024A7FD /* tinyxml.h */,
+				33104D311BBB2E160024A7FD /* tinyxmlerror.cpp */,
+				33104D321BBB2E160024A7FD /* tinyxmlparser.cpp */,
+			);
+			path = TinyXml;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -102,6 +128,7 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
+				Base,
 			);
 			mainGroup = 331036331BBB29380024A7FD;
 			productRefGroup = 3310363D1BBB29380024A7FD /* Products */;
@@ -118,7 +145,11 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				33104D351BBB2E160024A7FD /* tinyxmlerror.cpp in Sources */,
 				331036401BBB29380024A7FD /* main.cpp in Sources */,
+				33104D341BBB2E160024A7FD /* tinyxml.cpp in Sources */,
+				33104D361BBB2E160024A7FD /* tinyxmlparser.cpp in Sources */,
+				33104D331BBB2E160024A7FD /* tinystr.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -202,6 +233,20 @@
 		331036441BBB29380024A7FD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/ihebeddine/Desktop/acoba/AC_cam/Acoba_AC-SDK/ac_sdk/libMode/ARM",
+					"/Users/ihebeddine/Desktop/acoba/AC_cam/Acoba_AC-SDK/ac_sdk/libMode/x86",
+					/Users/ihebeddine/Desktop/acoba/AC_cam/bin_camera,
+					/Users/ihebeddine/Desktop/acoba/AC_cam/ext_dependency/_lib_arm,
+					/Users/ihebeddine/Desktop/acoba/AC_cam/ext_dependency/lib32,
+					/Users/ihebeddine/Desktop/acoba/AC_cam/ext_dependency/lib_arm,
+					/Users/ihebeddine/Desktop/acoba/AC_cam,
+					/Users/ihebeddine/Desktop/acoba/AcqVideo/BasicUsageEnvironment,
+					/Users/ihebeddine/Desktop/acoba/AcqVideo/groupsock,
+					/Users/ihebeddine/Desktop/acoba/AcqVideo/liveMedia,
+					/Users/ihebeddine/Desktop/acoba/AcqVideo/UsageEnvironment,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Debug;
@@ -209,6 +254,20 @@
 		331036451BBB29380024A7FD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"/Users/ihebeddine/Desktop/acoba/AC_cam/Acoba_AC-SDK/ac_sdk/libMode/ARM",
+					"/Users/ihebeddine/Desktop/acoba/AC_cam/Acoba_AC-SDK/ac_sdk/libMode/x86",
+					/Users/ihebeddine/Desktop/acoba/AC_cam/bin_camera,
+					/Users/ihebeddine/Desktop/acoba/AC_cam/ext_dependency/_lib_arm,
+					/Users/ihebeddine/Desktop/acoba/AC_cam/ext_dependency/lib32,
+					/Users/ihebeddine/Desktop/acoba/AC_cam/ext_dependency/lib_arm,
+					/Users/ihebeddine/Desktop/acoba/AC_cam,
+					/Users/ihebeddine/Desktop/acoba/AcqVideo/BasicUsageEnvironment,
+					/Users/ihebeddine/Desktop/acoba/AcqVideo/groupsock,
+					/Users/ihebeddine/Desktop/acoba/AcqVideo/liveMedia,
+					/Users/ihebeddine/Desktop/acoba/AcqVideo/UsageEnvironment,
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 			};
 			name = Release;
@@ -232,6 +291,7 @@
 				331036451BBB29380024A7FD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
