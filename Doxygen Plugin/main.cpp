@@ -23,10 +23,10 @@ int main(int argc, const char * argv[])
     cout << "Hello, World!\n";
 
 
-    std::vector<FunctionInfo_Struct> FunctionList;
+    std::vector<FunctionInfo_Struct> functionList;
 
-    GetExtractFunctionsInfo("/Users/ihebeddine/projects/doxygen/SamllExample/html/globals_func.html", FunctionList);
-    
+    GetExtractFunctionsInfo("/Users/ihebeddine/projects/doxygen/SamllExample/html/globals_func.html", functionList);
+
     
     return 0;
 }
@@ -38,11 +38,11 @@ void ReadFileContentIntoString(const char * fileName, std::string & content)
     content.assign(istreambuf_iterator<char>(ifs) , istreambuf_iterator<char>());
 }
 
-bool GetExtractFunctionsInfo(const char * fileName, std::vector<FunctionInfo_Struct> & FunctionList)
+bool GetExtractFunctionsInfo(const char * fileName, std::vector<FunctionInfo_Struct> & functionList)
 {
     string globalsFuncContent;
 
-    FunctionList.clear();
+    functionList.clear();
 
     ReadFileContentIntoString(fileName, globalsFuncContent);
     
@@ -118,11 +118,9 @@ bool GetExtractFunctionsInfo(const char * fileName, std::vector<FunctionInfo_Str
         if (! ExtractFunctionInfo(tempElement->GetText(), tempElement2->Attribute("href"), tempFunctionInfo))
             continue;
 
-        //
+        functionList.push_back(FunctionInfo_Struct(tempFunctionInfo));
     }
-    
-    
-    tempFunctionInfo.FunctionName = NULL;
+
 
 
     cout << "I am still fine" << endl;
@@ -135,15 +133,17 @@ bool ExtractFunctionInfo(const char * xFunctionName, const char * xFunctionLink,
     if (! xFunctionName || ! *xFunctionName || ! xFunctionLink || ! *xFunctionLink)
         return false;
 
-    xFunctionLink = strstr(xFunctionLink, "#");
-    
-    if (! strstr(xFunctionName, "(") || ! xFunctionLink)
+    char * functionId = strstr(xFunctionLink, "#");
+
+    if (! strstr(xFunctionName, "(") || strstr(xFunctionName, "(") - xFunctionName >= sizeof(functionInfo.FunctionName) || ! functionId || ! functionId[1] || functionId == xFunctionLink)
         return false;
 
-    functionInfo.FunctionName = new char[strlen(xFunctionName)];
-    
-    char aa[1000];
-    sscanf("\r\nabc()ad   a", " %[^(]", aa);
-    cout << "sscanf => #" << aa << "#" << endl;
+    sscanf(xFunctionName, " %[^(]", functionInfo.FunctionName);
+
+    sscanf(xFunctionLink, " %[^#]#%s", functionInfo.FileName, functionInfo.FunctionId);
+    //strcpy(functionInfo.FunctionId, xFunctionLink + 1);
+
+    cout << "sscanf => #" << functionInfo.FunctionName << "#" << functionInfo.FileName << "#" << functionInfo.FunctionId << "#" << endl;
+
     return true;
 }

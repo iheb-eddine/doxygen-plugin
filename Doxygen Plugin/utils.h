@@ -17,20 +17,9 @@
 
 struct FunctionInfo_Struct
 {
-    char * FunctionName;
+    char FunctionName[200];
     char FunctionId[100];
-    
-    FunctionInfo_Struct() : FunctionName(NULL)
-    {}
-    
-    ~FunctionInfo_Struct()
-    {
-        if (FunctionName)
-        {
-            delete [] FunctionName;
-            FunctionName = NULL;
-        }
-    }
+    char FileName[1000];
 };
 
 
