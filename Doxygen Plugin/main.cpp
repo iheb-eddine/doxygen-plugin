@@ -19,32 +19,32 @@ using namespace std;
 
 int main(int argc, const char * argv[])
 {
-    // insert code here...
-    cout << "Hello, World!\n";
-
+    std::string htmlDoxygenOutputDirPath = "/Users/ihebeddine/projects/doxygen/SamllExample/html";
+    std::string funcExtraDescDirPath = "/Users/ihebeddine/projects/doxygen";
 
     std::vector<FunctionInfo_Struct> functionList;
 
-    GetExtractFunctionsInfo("/home/ihebeddine/Desktop/simple_progs/doxygen/SamllExample/html/globals_func.html", functionList);
+    GetExtractFunctionsInfo(htmlDoxygenOutputDirPath, functionList);
 
+    
     
     return 0;
 }
 
 
-void ReadFileContentIntoString(const char * fileName, std::string & content)
+void ReadFileContentIntoString(std::string fileName, std::string & content)
 {
     ifstream ifs(fileName);
     content.assign(istreambuf_iterator<char>(ifs) , istreambuf_iterator<char>());
 }
 
-bool GetExtractFunctionsInfo(const char * fileName, std::vector<FunctionInfo_Struct> & functionList)
+bool GetExtractFunctionsInfo(std::string htmlDirPath, std::vector<FunctionInfo_Struct> & functionList)
 {
     string globalsFuncContent;
 
     functionList.clear();
 
-    ReadFileContentIntoString(fileName, globalsFuncContent);
+    ReadFileContentIntoString(htmlDirPath + "/globals_func.html", globalsFuncContent);
     
     cout << globalsFuncContent << endl;
     
@@ -55,7 +55,7 @@ bool GetExtractFunctionsInfo(const char * fileName, std::vector<FunctionInfo_Str
     
     if (strError == NULL)
     {
-        std::cout << "Could not parse the file " << globalsFuncContent << "\n";
+        std::cout << "Could not parse the file " << globalsFuncContent << endl;
         return false;
     }
 
@@ -122,6 +122,12 @@ bool GetExtractFunctionsInfo(const char * fileName, std::vector<FunctionInfo_Str
     }
 
 
+    std::sort(functionList.begin(), functionList.end(),
+              [] (FunctionInfo_Struct & st1, FunctionInfo_Struct & st2)
+              {
+                  return strcmp(st1.FileName, st2.FileName) < 0;
+              }
+              );
 
     cout << "I am still fine" << endl;
     
@@ -147,3 +153,251 @@ bool ExtractFunctionInfo(const char * xFunctionName, const char * xFunctionLink,
 
     return true;
 }
+
+
+void InjectExtraDescIntoHtmlFiles(std::vector<FunctionInfo_Struct> & functionList, std::string htmlDirPath, std::string funcExtraDirPath)
+{
+    std::string currentFileName = "";
+    
+    TiXmlDocument xmlDoc;
+    TiXmlElement * contentDivElement = NULL; //    html/body/div:[class=content]
+
+    
+    for (auto itr = functionList.begin(); itr != functionList.end(); itr++)
+    {
+        if (! currentFileName.compare(itr->FileName))
+        {
+            currentFileName = itr->FileName;
+
+            //If this function fails, contentDivElement will be NULL, in this case we will ignore all functins among this file
+            GetContentDivElement(htmlDirPath + itr->FileName, xmlDoc, contentDivElement);
+        }
+
+        if (! contentDivElement)
+            continue;
+
+
+        ifstream functionTextFile((funcExtraDirPath + "/" + itr->FunctionName + ".txt").c_str());
+        if (! functionTextFile.good())
+        {
+            functionTextFile.close();
+            continue;
+        }
+
+        
+
+        //std::getLine(functionTextFile, )
+    
+        functionTextFile.close();
+    
+    }
+}
+
+
+void FindExtraDescElementPosition(TiXmlDocument & xmlDoc, TiXmlElement * contentDivElement, const char * functionId, TiXmlElement *& extraDescElement)
+{
+    extraDescElement = NULL;
+    
+    
+    TiXmlElement * tempElement, *tempElement2, * tempSectinoElement;
+    TiXmlElement extraDescSectionElement("dl");
+
+    tempElement = contentDivElement->FirstChildElement("a");
+    
+    for (; tempElement; tempElement = tempElement->NextSiblingElement())
+    {
+        if (tempElement->Attribute("id") && ! strcmp(tempElement->Attribute("id"), functionId))
+            break;
+    }
+    
+    if (! tempElement)
+    {
+        cout << "FindExtraDescElementPosition : Could not get the tag a[id:" << functionId << "]" << endl;
+        return;
+    }
+    
+    
+    tempElement = tempElement->NextSiblingElement();
+    
+    if (! tempElement || strcmp(tempElement->Value(), "div") || ! tempElement->Attribute("class") || strcmp(tempElement->Attribute("class"), "memitem"))
+        return;
+
+    //Searching div:[class=memdoc]
+
+    tempElement = tempElement->FirstChildElement("div");
+    
+    for (; tempElement; tempElement = tempElement->NextSiblingElement())
+    {
+        if (tempElement->Attribute("class") && ! strcmp(tempElement->Attribute("class"), "memdoc"))
+            break;
+    }
+    
+    if (! tempElement)
+    {
+        cout << "FindExtraDescElementPosition : Could not get the tag div[class:memdoc]" << endl;
+        return;
+    }
+
+
+    extraDescSectionElement = TiXmlElement("dl");
+    extraDescSectionElement.SetAttribute("class", "section extra");
+
+    tempElement2 = (TiXmlElement *)extraDescSectionElement.InsertEndChild(TiXmlElement("dt"));
+    if (! tempElement2)
+        return;
+
+    tempElement2->LinkEndChild(new TiXmlText("Extra Description"));
+
+    ////Check this
+    extraDescElement = (TiXmlElement *)extraDescSectionElement.LinkEndChild(new TiXmlElement("dd"));
+
+
+
+    tempSectinoElement = tempElement->FirstChildElement("dl");
+    
+    for (; tempSectinoElement; tempSectinoElement = tempSectinoElement->NextSiblingElement("dl"))
+    {
+        if (tempSectinoElement->Attribute("class") && ! strcmp(tempSectinoElement->Attribute("class"), "section return"))
+            break;
+    }
+    
+    if (tempSectinoElement)
+    {
+        goto insert_after;
+    }
+    
+    
+    tempSectinoElement = tempElement->FirstChildElement("dl");
+    
+    for (; tempSectinoElement; tempSectinoElement = tempSectinoElement->NextSiblingElement("dl"))
+    {
+        if (tempSectinoElement->Attribute("class") && ! strcmp(tempSectinoElement->Attribute("class"), "section params"))
+            break;
+    }
+    
+    if (tempSectinoElement)
+    {
+        goto insert_after;
+    }
+    
+    
+    tempSectinoElement = tempElement->FirstChildElement("dl");
+    
+    for (; tempSectinoElement; tempSectinoElement = tempSectinoElement->NextSiblingElement("dl"))
+    {
+        if (tempSectinoElement->Attribute("class") && ! strcmp(tempSectinoElement->Attribute("class"), "section see"))
+            break;
+    }
+    
+    if (tempSectinoElement)
+    {
+        goto insert_before;
+    }
+    
+    
+    tempSectinoElement = tempElement->FirstChildElement("dl");
+    
+    for (; tempSectinoElement; tempSectinoElement = tempSectinoElement->NextSiblingElement("dl"))
+    {
+        if (tempSectinoElement->Attribute("class") && ! strcmp(tempSectinoElement->Attribute("class"), "section note"))
+            break;
+    }
+    
+    if (tempSectinoElement)
+    {
+        goto insert_before;
+    }
+    
+    
+    tempSectinoElement = tempElement->FirstChildElement("dl");
+    
+    for (; tempSectinoElement; tempSectinoElement = tempSectinoElement->NextSiblingElement("dl"))
+    {
+        if (tempSectinoElement->Attribute("class") && ! strcmp(tempSectinoElement->Attribute("class"), "section warning"))
+            break;
+    }
+    
+    if (tempSectinoElement)
+    {
+        goto insert_before;
+    }
+
+    goto insert_at_end;
+
+insert_after:
+
+    tempElement = (TiXmlElement *)tempElement->InsertAfterChild(tempSectinoElement, extraDescSectionElement);
+    goto after_insertion;
+
+
+insert_before:
+
+    tempElement = (TiXmlElement *)tempElement->InsertBeforeChild(tempSectinoElement, extraDescSectionElement);
+    goto after_insertion;
+
+
+insert_at_end:
+    tempElement = (TiXmlElement *)tempElement->InsertEndChild(extraDescSectionElement);
+
+after_insertion:
+
+    
+    //// Check this
+    
+    if (! tempElement)
+    {
+        extraDescElement = NULL;
+    }
+}
+
+
+void GetContentDivElement(std::string htmlFilePath, TiXmlDocument & xmlDoc, TiXmlElement *& contentDivElement)
+{
+    contentDivElement = NULL;
+
+    const char * strError = xmlDoc.Parse(htmlFilePath.c_str());
+    TiXmlElement * tempElement;
+
+    if (strError == NULL)
+    {
+        std::cout << "Could not parse the file " << htmlFilePath << endl;
+        return;
+    }
+
+    tempElement = xmlDoc.RootElement();
+
+
+
+    if (strcmp(tempElement->Value(), "html"))
+    {
+        cout << "GetContentDivElement : Could not get the tag html" << endl;
+        return;
+    }
+    
+    
+    tempElement = tempElement->FirstChildElement("body");
+    
+    if (! tempElement)
+    {
+        cout << "GetContentDivElement : Could not get the tag body" << endl;
+        return;
+    }
+    
+    
+    tempElement = tempElement->FirstChildElement("div");
+    
+    for (; tempElement; tempElement = tempElement->NextSiblingElement())
+    {
+        if (tempElement->Attribute("class") && ! strcmp(tempElement->Attribute("class"), "contents"))
+            break;
+    }
+    
+    if (! tempElement)
+    {
+        cout << "GetContentDivElement : Could not get the tag div[class:contents]" << endl;
+        return;
+    }
+
+    contentDivElement = tempElement;
+}
+

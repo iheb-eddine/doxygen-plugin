@@ -23,8 +23,12 @@ struct FunctionInfo_Struct
 };
 
 
-void ReadFileContentIntoString(const char * fileName, std::string & content);
-bool GetExtractFunctionsInfo(const char * fileName, std::vector<FunctionInfo_Struct> & FunctionList);
+void ReadFileContentIntoString(std::string fileName, std::string & content);
+bool GetExtractFunctionsInfo(std::string htmlDirPath, std::vector<FunctionInfo_Struct> & FunctionList);
 bool ExtractFunctionInfo(const char * xFunctionName, const char * xFunctionLink, FunctionInfo_Struct & functionInfo);
+
+void InjectExtraDescIntoHtmlFiles(std::vector<FunctionInfo_Struct> & functionList, std::string htmlDirPath, std::string funcExtraDirPath);
+void FindExtraDescElementPosition(TiXmlDocument & xmlDoc, TiXmlElement * contentDivElement, const char * functionId, TiXmlElement *& extraDescElement);
+void GetContentDivElement(std::string htmlFilePath, TiXmlDocument & xmlDoc, TiXmlElement *& contentDivElement);
 
 #endif

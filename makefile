@@ -3,7 +3,7 @@
 
 
 OBJ_DIR		= build
-EXE_DIR		= builds
+EXE_DIR		= build
 
 CC		= g++
 
@@ -12,7 +12,7 @@ ORIG_SRC_DIR	= "Doxygen Plugin"
 SRC_DIR		= DoxygenPlugin
 TINYXML_SRC_DIR	= $(SRC_DIR)/TinyXml
 INCLUDES	= -I$(TINYXML_SRC_DIR)
-CFLAGS		= -c -g $(INCLUDES)
+CFLAGS		= -Wall -g -std=c++11 -c $(INCLUDES)
 
 DIR_CHECK	= $(SRC_DIR) $(OBJ_DIR) $(EXE_DIR)
 
