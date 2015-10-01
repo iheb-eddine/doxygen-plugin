@@ -9,6 +9,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
+#include <algorithm>
 
 #include "tinyxml.h"
 
@@ -103,15 +104,10 @@ bool GetExtractFunctionsInfo(std::string htmlDirPath, std::vector<FunctionInfo_S
     
 
     tempElement = tempElement->FirstChildElement("li");
-    const char * tempFunctionName;
-    const char * tempFunctionLink;
     
     for (; tempElement; tempElement = tempElement->NextSiblingElement("li"))
     {
-        tempFunctionName = tempElement->GetText();
-
         tempElement2 = tempElement->FirstChildElement("a");
-        tempFunctionLink = tempElement2->Attribute("href");
 
         cout << "Function Name : " << tempElement->GetText() << "\n Function Link : " << tempElement2->Attribute("href") << endl;
 
@@ -123,11 +119,12 @@ bool GetExtractFunctionsInfo(std::string htmlDirPath, std::vector<FunctionInfo_S
 
 
     std::sort(functionList.begin(), functionList.end(),
-              [] (FunctionInfo_Struct & st1, FunctionInfo_Struct & st2)
+              [] (const FunctionInfo_Struct & st1, const FunctionInfo_Struct & st2)
               {
                   return strcmp(st1.FileName, st2.FileName) < 0;
               }
               );
+
 
     cout << "I am still fine" << endl;
     
@@ -141,7 +138,7 @@ bool ExtractFunctionInfo(const char * xFunctionName, const char * xFunctionLink,
 
     char * functionId = strstr((char *)xFunctionLink, "#");
 
-    if (! strstr(xFunctionName, "(") || strstr(xFunctionName, "(") - xFunctionName >= sizeof(functionInfo.FunctionName) || ! functionId || ! functionId[1] || functionId == xFunctionLink)
+    if (! strstr(xFunctionName, "(") || (unsigned int)(strstr(xFunctionName, "(") - xFunctionName) >= sizeof(functionInfo.FunctionName) || ! functionId || ! functionId[1] || functionId == xFunctionLink)
         return false;
 
     sscanf(xFunctionName, " %[^(]", functionInfo.FunctionName);

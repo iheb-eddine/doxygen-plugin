@@ -73,3 +73,4 @@ $(OBJ_DIR)/tinyxmlparser.o: $(TINYXML_SRC_DIR)/tinyxmlparser.cpp
 
 clean:
 	rm -rf $(OBJ_DIR)/ $(EXE_DIR)/
+	@unlink $(SRC_DIR) 2> /dev/null || ``
