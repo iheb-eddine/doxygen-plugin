@@ -21,12 +21,13 @@ using namespace std;
 int main(int argc, const char * argv[])
 {
     std::string htmlDoxygenOutputDirPath = "/Users/ihebeddine/projects/doxygen/SamllExample/html";
-    std::string funcExtraDescDirPath = "/Users/ihebeddine/projects/doxygen";
+    std::string funcExtraDescDirPath = "/Users/ihebeddine/projects/doxygen/SamllExample";
 
     std::vector<FunctionInfo_Struct> functionList;
 
     GetExtractFunctionsInfo(htmlDoxygenOutputDirPath, functionList);
 
+    InjectExtraDescIntoHtmlFiles(functionList, htmlDoxygenOutputDirPath, funcExtraDescDirPath);
     
     
     return 0;
@@ -157,17 +158,24 @@ void InjectExtraDescIntoHtmlFiles(std::vector<FunctionInfo_Struct> & functionLis
     std::string currentFileName = "";
     
     TiXmlDocument xmlDoc;
-    TiXmlElement * contentDivElement = NULL; //    html/body/div:[class=content]
+    TiXmlElement * contentDivElement = NULL, * extraDescElement = NULL; //    html/body/div:[class=content]
 
+    bool isHtmlDocEdited = false;
     
     for (auto itr = functionList.begin(); itr != functionList.end(); itr++)
     {
-        if (! currentFileName.compare(itr->FileName))
+        if (currentFileName.compare(itr->FileName))
         {
+            if (isHtmlDocEdited)
+            {
+                SaveHtmlDoc(xmlDoc, htmlDirPath+ "/" + currentFileName);
+            }
+            
             currentFileName = itr->FileName;
+            isHtmlDocEdited = false;
 
             //If this function fails, contentDivElement will be NULL, in this case we will ignore all functins among this file
-            GetContentDivElement(htmlDirPath + itr->FileName, xmlDoc, contentDivElement);
+            GetContentDivElement(htmlDirPath+ "/" + itr->FileName, xmlDoc, contentDivElement);
         }
 
         if (! contentDivElement)
@@ -175,23 +183,49 @@ void InjectExtraDescIntoHtmlFiles(std::vector<FunctionInfo_Struct> & functionLis
 
 
         ifstream functionTextFile((funcExtraDirPath + "/" + itr->FunctionName + ".txt").c_str());
+        cout << " ABC : " << funcExtraDirPath + "/" + itr->FunctionName + ".txt" << endl;
         if (! functionTextFile.good())
         {
             functionTextFile.close();
             continue;
         }
 
-        
+        FindExtraDescElementPosition(contentDivElement, itr->FunctionId, extraDescElement);
+
+        if (! extraDescElement)
+            goto next_loop;
 
         //std::getLine(functionTextFile, )
-    
+        if (! InsertFuncExtraDescIntoHtmlDoc(functionTextFile, extraDescElement))
+            goto next_loop;
+
+        isHtmlDocEdited = true;
+        
+    next_loop:
         functionTextFile.close();
     
     }
+    
+    if (isHtmlDocEdited)
+    {
+        SaveHtmlDoc(xmlDoc, htmlDirPath+ "/" + currentFileName);
+    }
+}
+
+bool InsertFuncExtraDescIntoHtmlDoc(std::ifstream & functionTextFile, TiXmlElement * extraDescElement)
+{
+    //extraDescElement->LinkEndChild(new TiXmlText("Bonjour tout le monde" ));
+    return true;
 }
 
 
-void FindExtraDescElementPosition(TiXmlDocument & xmlDoc, TiXmlElement * contentDivElement, const char * functionId, TiXmlElement *& extraDescElement)
+void SaveHtmlDoc(TiXmlDocument & xmlDoc, std::string htmlFilePath)
+{
+    xmlDoc.SaveFile(htmlFilePath.c_str());
+}
+
+
+void FindExtraDescElementPosition(TiXmlElement * contentDivElement, const char * functionId, TiXmlElement *& extraDescElement)
 {
     extraDescElement = NULL;
     
@@ -236,7 +270,6 @@ void FindExtraDescElementPosition(TiXmlDocument & xmlDoc, TiXmlElement * content
     }
 
 
-    extraDescSectionElement = TiXmlElement("dl");
     extraDescSectionElement.SetAttribute("class", "section extra");
 
     tempElement2 = (TiXmlElement *)extraDescSectionElement.InsertEndChild(TiXmlElement("dt"));
@@ -246,12 +279,12 @@ void FindExtraDescElementPosition(TiXmlDocument & xmlDoc, TiXmlElement * content
     tempElement2->LinkEndChild(new TiXmlText("Extra Description"));
 
     ////Check this
-    extraDescElement = (TiXmlElement *)extraDescSectionElement.LinkEndChild(new TiXmlElement("dd"));
+    //extraDescElement = (TiXmlElement *)extraDescSectionElement.LinkEndChild(new TiXmlElement("dd"));
 
 
 
     tempSectinoElement = tempElement->FirstChildElement("dl");
-    
+
     for (; tempSectinoElement; tempSectinoElement = tempSectinoElement->NextSiblingElement("dl"))
     {
         if (tempSectinoElement->Attribute("class") && ! strcmp(tempSectinoElement->Attribute("class"), "section return"))
@@ -344,7 +377,10 @@ after_insertion:
     if (! tempElement)
     {
         extraDescElement = NULL;
+        return;
     }
+    
+    extraDescElement = (TiXmlElement *)tempElement->LinkEndChild(new TiXmlElement("dd"));
 }
 
 
@@ -352,9 +388,16 @@ void GetContentDivElement(std::string htmlFilePath, TiXmlDocument & xmlDoc, TiXm
 {
     contentDivElement = NULL;
 
-    const char * strError = xmlDoc.Parse(htmlFilePath.c_str());
+    string htmlFileContent;
+    htmlFileContent.clear();
+    
+    ReadFileContentIntoString(htmlFilePath, htmlFileContent);
+    
+    const char * strError = xmlDoc.Parse(htmlFileContent.c_str());
     TiXmlElement * tempElement;
 
+    //cout << "htmlFilePath : " << htmlFilePath;
+    
     if (strError == NULL)
     {
         std::cout << "Could not parse the file " << htmlFilePath << endl;

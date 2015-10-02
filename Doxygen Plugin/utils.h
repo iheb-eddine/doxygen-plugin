@@ -27,8 +27,10 @@ void ReadFileContentIntoString(std::string fileName, std::string & content);
 bool GetExtractFunctionsInfo(std::string htmlDirPath, std::vector<FunctionInfo_Struct> & FunctionList);
 bool ExtractFunctionInfo(const char * xFunctionName, const char * xFunctionLink, FunctionInfo_Struct & functionInfo);
 
+bool InsertFuncExtraDescIntoHtmlDoc(std::ifstream & functionTextFile, TiXmlElement * extraDescElement);
+void SaveHtmlDoc(TiXmlDocument & xmlDoc, std::string htmlFilePath);
 void InjectExtraDescIntoHtmlFiles(std::vector<FunctionInfo_Struct> & functionList, std::string htmlDirPath, std::string funcExtraDirPath);
-void FindExtraDescElementPosition(TiXmlDocument & xmlDoc, TiXmlElement * contentDivElement, const char * functionId, TiXmlElement *& extraDescElement);
+void FindExtraDescElementPosition(TiXmlElement * contentDivElement, const char * functionId, TiXmlElement *& extraDescElement);
 void GetContentDivElement(std::string htmlFilePath, TiXmlDocument & xmlDoc, TiXmlElement *& contentDivElement);
 
 #endif
