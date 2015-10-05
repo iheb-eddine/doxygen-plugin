@@ -42,11 +42,6 @@ distribution.
 // or order will break putstring.	
 TiXmlBase::Entity TiXmlBase::entity[ TiXmlBase::NUM_ENTITY ] = 
 {
-	{ "&amp;",  5, '&' },
-	{ "&lt;",   4, '<' },
-	{ "&gt;",   4, '>' },
-	{ "&quot;", 6, '\"' },
-	{ "&apos;", 6, '\'' }
 };
 
 // Bunch of unicode info at:
@@ -187,6 +182,7 @@ class TiXmlParsingData
 		cursor.col = col;
 	}
 
+public:
 	TiXmlCursor		cursor;
 	const char*		stamp;
 	int				tabsize;
@@ -598,7 +594,7 @@ const char* TiXmlBase::ReadText(	const char* p,
 		bool whitespace = false;
 
 		// Remove leading white space:
-		p = SkipWhiteSpace( p, encoding );
+		//p = SkipWhiteSpace( p, encoding );
 		while (	   p && *p
 				&& !StringEqual( p, endTag, caseInsensitive, encoding ) )
 		{
@@ -825,7 +821,7 @@ TiXmlNode* TiXmlNode::Identify( const char* p, TiXmlEncoding encoding )
 		return 0;
 	}
 
-	p = SkipWhiteSpace( p, encoding );
+	//p = SkipWhiteSpace( p, encoding );
 
 	if ( !p || !*p )
 	{
@@ -1042,7 +1038,7 @@ void TiXmlElement::StreamIn (std::istream * in, TIXML_STRING * tag)
 
 const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding )
 {
-	p = SkipWhiteSpace( p, encoding );
+	//p = SkipWhiteSpace( p, encoding );
 	TiXmlDocument* document = GetDocument();
 
 	if ( !p || !*p )
@@ -1106,7 +1102,7 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 			// Read the value -- which can include other
 			// elements -- read the end tag, and return.
 			++p;
-			p = ReadValue( p, data, encoding );		// Note this is an Element method, and will set the error if one happens.
+			p = ReadValue( p, data, encoding, true );		// Note this is an Element method, and will set the error if one happens.
 			if ( !p || !*p ) {
 				// We were looking for the end tag, but found nothing.
 				// Fix for [ 1663758 ] Failure to report error on bad XML
@@ -1122,7 +1118,7 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 			if ( StringEqual( p, endTag.c_str(), false, encoding ) )
 			{
 				p += endTag.length();
-				p = SkipWhiteSpace( p, encoding );
+				//p = SkipWhiteSpace( p, encoding );
 				if ( p && *p && *p == '>' ) {
 					++p;
 					return p;
@@ -1176,18 +1172,19 @@ const char* TiXmlElement::Parse( const char* p, TiXmlParsingData* data, TiXmlEnc
 }
 
 
-const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding )
+const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXmlEncoding encoding, bool emptyTag )
 {
 	TiXmlDocument* document = GetDocument();
 
 	// Read in text and elements in any order.
 	const char* pWithWhiteSpace = p;
-	p = SkipWhiteSpace( p, encoding );
+	//p = SkipWhiteSpace( p, encoding );
 
 	while ( p && *p )
 	{
-		if ( *p != '<' )
+		if ( *p != '<' || emptyTag )
 		{
+            emptyTag = false;
 			// Take what we have, make a text element.
 			TiXmlText* textNode = new TiXmlText( "" );
 
@@ -1207,10 +1204,14 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 				p = textNode->Parse( pWithWhiteSpace, data, encoding );
 			}
 
+            //Added and next statements commented by Iheb Eddine
+            LinkEndChild( textNode );
+            /*
 			if ( !textNode->Blank() )
 				LinkEndChild( textNode );
 			else
 				delete textNode;
+             */
 		} 
 		else 
 		{
@@ -1236,7 +1237,7 @@ const char* TiXmlElement::ReadValue( const char* p, TiXmlParsingData* data, TiXm
 			}
 		}
 		pWithWhiteSpace = p;
-		p = SkipWhiteSpace( p, encoding );
+		//p = SkipWhiteSpace( p, encoding );
 	}
 
 	if ( !p )
@@ -1502,6 +1503,10 @@ const char* TiXmlText::Parse( const char* p, TiXmlParsingData* data, TiXmlEncodi
 	if ( data )
 	{
 		data->Stamp( p, encoding );
+        /*
+        data->cursor.col++;
+        data->stamp++;
+         */
 		location = data->Cursor();
 	}
 
@@ -1535,10 +1540,11 @@ const char* TiXmlText::Parse( const char* p, TiXmlParsingData* data, TiXmlEncodi
 	}
 	else
 	{
-		bool ignoreWhite = true;
+        bool ignoreWhite = true;
 
 		const char* end = "<";
 		p = ReadText( p, &value, ignoreWhite, end, false, encoding );
+        //p = ReadText( p, &value, true, end, false, encoding );
 		if ( p && *p )
 			return p-1;	// don't truncate the '<'
 		return 0;

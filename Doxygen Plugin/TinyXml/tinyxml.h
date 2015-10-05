@@ -288,14 +288,20 @@ protected:
 	static const char* SkipWhiteSpace( const char*, TiXmlEncoding encoding );
 
 	inline static bool IsWhiteSpace( char c )		
-	{ 
-		return ( isspace( (unsigned char) c ) || c == '\n' || c == '\r' ); 
+	{
+        //Commented by Iheb Eddine
+		return ( isspace( (unsigned char) c ) || c == '\n' || c == '\r' );
+        return false;
 	}
 	inline static bool IsWhiteSpace( int c )
 	{
+        //Commented by Iheb Eddine
+
 		if ( c < 256 )
 			return IsWhiteSpace( (char) c );
 		return false;	// Again, only truly correct for English/Latin...but usually works.
+
+        return false;
 	}
 
 	#ifdef TIXML_USE_STL
@@ -339,8 +345,11 @@ protected:
 
 		if ( *length == 1 )
 		{
+            //Commented by Iheb Eddine
+            /*
 			if ( *p == '&' )
 				return GetEntity( p, _value, length, encoding );
+             */
 			*_value = *p;
 			return p+1;
 		}
@@ -405,7 +414,7 @@ private:
 	};
 	enum
 	{
-		NUM_ENTITY = 5,
+		NUM_ENTITY = 0,
 		MAX_ENTITY_LENGTH = 6
 
 	};
@@ -1150,7 +1159,7 @@ protected:
 		Reads the "value" of the element -- another element, or text.
 		This should terminate with the current end tag.
 	*/
-	const char* ReadValue( const char* in, TiXmlParsingData* prevData, TiXmlEncoding encoding );
+	const char* ReadValue( const char* in, TiXmlParsingData* prevData, TiXmlEncoding encoding, bool emptyTag = false );
 
 private:
 	TiXmlAttributeSet attributeSet;

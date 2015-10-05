@@ -33,4 +33,10 @@ void InjectExtraDescIntoHtmlFiles(std::vector<FunctionInfo_Struct> & functionLis
 void FindExtraDescElementPosition(TiXmlElement * contentDivElement, const char * functionId, TiXmlElement *& extraDescElement);
 void GetContentDivElement(std::string htmlFilePath, TiXmlDocument & xmlDoc, TiXmlElement *& contentDivElement);
 
+bool CanIProcessDoxygenDoc(TiXmlElement * htmlElement, std::string htmlFilePath);
+
+bool ExtractCommandArguments(int argc, const char ** argv);
+void DisplayHelp(const char * commandName);
+
+
 #endif

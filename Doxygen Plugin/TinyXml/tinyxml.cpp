@@ -33,7 +33,7 @@ distribution.
 
 FILE* TiXmlFOpen( const char* filename, const char* mode );
 
-bool TiXmlBase::condenseWhiteSpace = true;
+bool TiXmlBase::condenseWhiteSpace = false;
 
 // Microsoft compiler security
 FILE* TiXmlFOpen( const char* filename, const char* mode )
@@ -56,6 +56,13 @@ void TiXmlBase::EncodeString( const TIXML_STRING& str, TIXML_STRING* outString )
 	while( i<(int)str.length() )
 	{
 		unsigned char c = (unsigned char) str[i];
+
+        //The following two statements are added by Iheb Eddine to replace the commented code below
+        *outString += (char) c;	// somewhat more efficient function call.
+        ++i;
+
+        /*
+        
 
 		if (    c == '&' 
 		     && i < ( (int)str.length() - 2 )
@@ -117,8 +124,8 @@ void TiXmlBase::EncodeString( const TIXML_STRING& str, TIXML_STRING* outString )
 				sprintf( buf, "&#x%02X;", (unsigned) ( c & 0xff ) );
 			#endif		
 
-			//*ME:	warning C4267: convert 'size_t' to 'int'
-			//*ME:	Int-Cast to make compiler happy ...
+			// *ME:	warning C4267: convert 'size_t' to 'int'
+			// *ME:	Int-Cast to make compiler happy ...
 			outString->append( buf, (int)strlen( buf ) );
 			++i;
 		}
@@ -129,6 +136,7 @@ void TiXmlBase::EncodeString( const TIXML_STRING& str, TIXML_STRING* outString )
 			*outString += (char) c;	// somewhat more efficient function call.
 			++i;
 		}
+        */
 	}
 }
 
@@ -802,7 +810,7 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 	int i;
 	assert( cfile );
 	for ( i=0; i<depth; i++ ) {
-		fprintf( cfile, "    " );
+		//fprintf( cfile, "    " );
 	}
 
 	fprintf( cfile, "<%s", value.c_str() );
@@ -821,7 +829,10 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 	TiXmlNode* node;
 	if ( !firstChild )
 	{
+        //Commented by Iheb Eddine and replaced by the following statement
 		fprintf( cfile, " />" );
+
+        //fprintf( cfile, "></%s>", value.c_str() );
 	}
 	else if ( firstChild == lastChild && firstChild->ToText() )
 	{
@@ -837,13 +848,13 @@ void TiXmlElement::Print( FILE* cfile, int depth ) const
 		{
 			if ( !node->ToText() )
 			{
-				fprintf( cfile, "\n" );
+				//fprintf( cfile, "\n" );
 			}
 			node->Print( cfile, depth+1 );
 		}
 		fprintf( cfile, "\n" );
 		for( i=0; i<depth; ++i ) {
-			fprintf( cfile, "    " );
+			//fprintf( cfile, "    " );
 		}
 		fprintf( cfile, "</%s>", value.c_str() );
 	}
@@ -1299,7 +1310,7 @@ void TiXmlComment::Print( FILE* cfile, int depth ) const
 	assert( cfile );
 	for ( int i=0; i<depth; i++ )
 	{
-		fprintf( cfile,  "    " );
+		//fprintf( cfile,  "    " );
 	}
 	fprintf( cfile, "<!--%s-->", value.c_str() );
 }
@@ -1337,7 +1348,7 @@ void TiXmlText::Print( FILE* cfile, int depth ) const
 		int i;
 		fprintf( cfile, "\n" );
 		for ( i=0; i<depth; i++ ) {
-			fprintf( cfile, "    " );
+			//fprintf( cfile, "    " );
 		}
 		fprintf( cfile, "<![CDATA[%s]]>\n", value.c_str() );	// unformatted output
 	}
@@ -1468,7 +1479,7 @@ TiXmlNode* TiXmlDeclaration::Clone() const
 void TiXmlUnknown::Print( FILE* cfile, int depth ) const
 {
 	for ( int i=0; i<depth; i++ )
-		fprintf( cfile, "    " );
+        ;//fprintf( cfile, "    " );
 	fprintf( cfile, "<%s>", value.c_str() );
 }
 
